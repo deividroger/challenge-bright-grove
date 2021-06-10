@@ -15,7 +15,7 @@ namespace App.API.Data
             var officeNumber = 100;
             var usersMin = 15;
             var usersMax = 25;
-            using var context = new SampleAppContext();
+            using var context = new AppDataContext();
             context.Database.Migrate();
 
             if (context.Users.Any())

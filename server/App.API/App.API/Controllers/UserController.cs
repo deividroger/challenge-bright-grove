@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using App.API.Models;
-using App.API.Services;
+﻿using App.API.Dto;
+using App.Context.Domain.Services;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace App.API.Controllers
 {
@@ -11,53 +12,20 @@ namespace App.API.Controllers
     [Route("users")]
     public class UserController : ControllerBase
     {
-        private readonly UserService userService;
+        private readonly IUserService _userService;
+        private readonly IMapper _mapper;
 
-        public UserController(UserService userService)
+        public UserController(IUserService userService, IMapper mapper)
         {
-            this.userService = userService;
+            _userService = userService;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        [Route("getUsers")]
-        public IEnumerable<User> GetUsers(string officeIds)
-        {
-            var ids = officeIds
-                .Split(",", StringSplitOptions.RemoveEmptyEntries)
-                .Select(o => Guid.Parse(o))
-                .ToArray();
+        
+        [SwaggerResponse(200, Type = typeof(IEnumerable<UserDto>))]
+        public async Task<IEnumerable<UserDto>> GetUsers([FromQuery]string officeIds)
+            => _mapper.Map<IEnumerable<UserDto>>(await _userService.GetUsers(officeIds));
 
-            var users = this.userService.GetUsers()
-                .Where(o => ids.Contains(o.Office.Id))
-                .ToArray();
-
-            var roles = this.userService
-                .GetUserRoles(users.Select(o => o.Id).ToArray());
-
-            try
-            {
-                foreach (var role in roles)
-                {
-                    var user = users.FirstOrDefault(o => o.Id == role.UserId);
-                    if (user is null)
-                    {
-                        continue;
-                    }
-
-                    if (user.Roles is null)
-                    {
-                        user.Roles = new List<UserRole>();
-                    }
-
-                    user.Roles.Add(role);
-                }
-            }
-            catch
-            {
-
-            }
-
-            return users;
-        }
     }
 }

@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using App.API.Data;
-using App.API.Models;
-using App.API.Services;
-using Dapper;
+﻿using App.API.Dto;
+using App.Context.Domain.Models;
+using App.Context.Domain.Services;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace App.API.Controllers
 {
@@ -14,18 +13,24 @@ namespace App.API.Controllers
     [Route("offices")]
     public class OfficeController : ControllerBase
     {
-        private readonly SampleAppContext context;
+        private readonly IOfficeService _officeService;
+        private readonly IMapper _mapper;
 
-        public OfficeController(SampleAppContext context)
+        public OfficeController(IOfficeService officeService, IMapper mapper)
         {
-            this.context = context;
+            _officeService = officeService;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        [Route("getOffices")]
-        public IEnumerable<Office> GetOffices(string searchPattern)
-            // to avoid additional allocations
-            => context.Query<Office>($@"select * from Offices where lower(Address) like lower('%{searchPattern}%')");       
-            
+        
+        [SwaggerResponse(200, Type = typeof(IEnumerable<OfficeDto>))]
+        public async Task<IEnumerable<OfficeDto>> GetOffices([FromQuery] string streetName)
+            => GetOffices(await _officeService.GetOfficesByStreetName(streetName));
+
+
+        private IEnumerable<OfficeDto> GetOffices(IEnumerable<Office> offices) 
+            => _mapper.Map<IEnumerable<OfficeDto>>(offices);
+
     }
 }

@@ -8,29 +8,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace App.API.Migrations
 {
-    [DbContext(typeof(SampleAppContext))]
-    [Migration("20210520122220_AddOffice")]
-    partial class AddOffice
+    [DbContext(typeof(Data.AppDataContext))]
+    [Migration("20210520114800_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "5.0.6");
-
-            modelBuilder.Entity("App.API.Models.Office", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Address")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Offices");
-                });
 
             modelBuilder.Entity("App.API.Models.Role", b =>
                 {
@@ -55,12 +41,7 @@ namespace App.API.Migrations
                     b.Property<string>("Login")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("OfficeId")
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("OfficeId");
 
                     b.ToTable("Users");
                 });
@@ -71,10 +52,10 @@ namespace App.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("RoleId")
+                    b.Property<Guid?>("RoleId")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -86,28 +67,15 @@ namespace App.API.Migrations
                     b.ToTable("UserRoles");
                 });
 
-            modelBuilder.Entity("App.API.Models.User", b =>
-                {
-                    b.HasOne("App.API.Models.Office", "Office")
-                        .WithMany()
-                        .HasForeignKey("OfficeId");
-
-                    b.Navigation("Office");
-                });
-
             modelBuilder.Entity("App.API.Models.UserRole", b =>
                 {
                     b.HasOne("App.API.Models.Role", "Role")
                         .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("RoleId");
 
                     b.HasOne("App.API.Models.User", "User")
                         .WithMany("Roles")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("Role");
 

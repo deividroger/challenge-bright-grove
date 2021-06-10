@@ -1,15 +1,12 @@
+import Office from "@/models/Office";
 import restClient from "./RestClient";
 
-export class Office {
-    constructor(public id: string, public address: string) {}
-}
-
 export class OfficeService {
-    public getOffices(pattern: string) {
-        return restClient.get<Office[]>("offices/getOffices", { searchPattern: pattern });
+    public getOffices(streetName: string): Promise<Office[]> {
+        return restClient.get<Office[]>("offices", { streetName: streetName });
     }
 }
 
-
 let officeService = new OfficeService()
+
 export default officeService

@@ -21,23 +21,27 @@
     </div>
   </div>
   <div v-if="users.length > 0">
-    <UserList :users="users" />
+    <UserList :users="users" :officeIds="offices.value" />
   </div>
 </template>
 
 <script lang="ts">
 import { ref } from "vue";
 import UserList from "./components/UserList.vue";
-import officeService, { Office } from "./services/OfficeService";
-import userService, { User } from "./services/UserService";
+import officeService from "./services/OfficeService";
+import userService from "./services/UserService";
+import Office from './models/Office';
+import { User } from './models/user';
 
 export default {
   components: { UserList },
   setup() {
     let searchPattern = ref("");
     let offices = ref([] as Office[]);
-    let selectedOffices = ref([] as string[]);
     let users = ref([] as User[]);
+
+    let selectedOffices = ref([] as string[]);
+    
 
     function onOfficeSearch() {
       officeService
@@ -46,7 +50,12 @@ export default {
     }
 
     function onUserSearch() {
-        users.value = userService.getUsers(selectedOffices.value);
+
+      userService
+        .getUsers(selectedOffices.value)
+        ?.then((o) => users.value = o );
+
+
     }
 
     function onSelectOffice(id: string) {

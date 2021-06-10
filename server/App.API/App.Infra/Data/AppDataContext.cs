@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using App.API.Models;
+﻿using System.Collections.Generic;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 
-namespace App.API.Data
+namespace App.Infra.Data
 {
-    public class SampleAppContext : DbContext
+    public class AppDataContext : DbContext
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
@@ -20,24 +15,13 @@ namespace App.API.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlite(@"Data Source=./app.db");
+           
+            optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         }
 
         public IEnumerable<T> Query<T>(string sql)
         {
             return this.Database.GetDbConnection().Query<T>(sql);
-        }
-    }
-
-    public class SqlGuidTypeHandler : SqlMapper.TypeHandler<Guid>
-    {
-        public override void SetValue(IDbDataParameter parameter, Guid guid)
-        {
-            parameter.Value = guid.ToString();
-        }
-
-        public override Guid Parse(object value)
-        {
-            return new Guid((string)value);
         }
     }
 }

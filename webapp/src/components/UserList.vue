@@ -8,9 +8,9 @@
         <span
           class="bold"
           v-for="role in item.roles"
-          v-bind:key="role.role.id"
+          v-bind:key="role.id"
         >
-          {{ role.role.name }}
+          {{ role.name }}
         </span>
       </div>
     </div>
@@ -20,19 +20,24 @@
 <script lang="ts">
 import { ref, watch } from "vue";
 import type from "@/core/Type";
-import userService, { User } from "@/services/UserService";
+import { User } from '@/models/user';
 
 export default {
   props: {
     officeIds: type<string[]>(),
+    users: type<User[]>()
   },
   setup(props) {
     let searchPattern = ref("");
     let data = ref([] as User[]);
 
+   data.value = props.users;
+
+
     watch(searchPattern, (newValue) => {
-      data.value = userService.getUsers(props.officeIds)
-        ?.filter((o) => o.login.indexOf(newValue) >= 0);
+
+      data.value = props.users.filter((o) =>  o.login.indexOf(newValue) >= 0);
+
     });
 
     return {
